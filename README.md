@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/mediapeers/ansible-role-s3-website-hosting.svg?branch=master)](https://travis-ci.com/mediapeers/ansible-role-s3-website-hosting)
+[![Build Status](https://travis-ci.com/mediafellows/ansible-role-s3-website-hosting.svg?branch=master)](https://travis-ci.com/mediafellows/ansible-role-s3-website-hosting)
 
 # Website hosting on S3 with Cloudfront as CDN
 Role for static website hosting on AWS using S3 for storage and CloudFront for distribution over HTTPs.
@@ -56,10 +56,10 @@ Use the role in your existing playbook like this:
           - 'www.my-fancy-frontend.com'
         s3_website_certificate_arn: 'arn:aws:acm:us-east-1:1230000000000:certificate/64089f32-b35a-4cdb-x301-2bc982d4630x'
       roles:
-         - mediapeers.s3-website-hosting
+         - mediafellows.s3-website-hosting
 
 ## License
 BSD
 
 ## Author Information
-Stefan Horning <horning@mediapeers.com>
+Stefan Horning <stefan.horning@mediafellows.com>

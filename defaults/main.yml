@@ -1,5 +1,5 @@
 ---
-# defaults file for mediapeers.s3-website-hosting
+# defaults file for mediafellows.s3-website-hosting
 
 # S3 bucket settings:
 s3_website_bucket_name: 'my-website-s3-bucket'

@@ -1,5 +1,5 @@
 ---
-# vars file for mediapeers.s3-website-hosting
+# vars file for mediafellows.s3-website-hosting
 
 # Hosted zone ID of Cloudfront for Route53 (static by AWS)
 cloudfront_hosted_zone_id: 'Z2FDTNDATAQYW2'

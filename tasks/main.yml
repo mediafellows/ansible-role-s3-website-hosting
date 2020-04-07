@@ -1,5 +1,5 @@
 ---
-# tasks file for mediapeers.s3-website-hosting
+# tasks file for mediafellows.s3-website-hosting
 
 - name: Name of the website s3 bucket that will be used
   debug:
