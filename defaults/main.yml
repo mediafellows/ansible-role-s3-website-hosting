@@ -29,6 +29,9 @@ s3_website_caching_default_ttl: 86400 # 1 day (AWS default)
 # TLS protocol policy string for Clodufront config
 s3_website_cloudfront_tls_policy: TLSv1.1_2016
 
+# CF tagging (defaults to s3 bucket tagging)
+s3_website_cloudfront_tagging:  '{{ s3_website_bucket_tagging }}'
+
 # PriceClass option for CloudFront
 s3_website_price_class: PriceClass_100
 

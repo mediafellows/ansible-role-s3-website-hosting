@@ -76,7 +76,7 @@
   debug:
     var: cloudfront_caller_reference
 
-# Check all parasms for cloudfront_distribution module here:
+# Check all params for cloudfront_distribution module here:
 # https://docs.ansible.com/ansible/latest/modules/cloudfront_distribution_module.html#parameters
 # If s.th. doesn't update as expected see if a purge_xx flag need to be added
 - name: Create or update Cloudfront Website distribution
@@ -136,6 +136,7 @@
       include_cookies: false
       bucket: ''
       prefix: ''
+    tags: "{{ s3_website_cloudfront_tagging }}"
     state: present
   register: cloudfront_website_distribution
 
