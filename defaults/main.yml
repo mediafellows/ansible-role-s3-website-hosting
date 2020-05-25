@@ -4,6 +4,9 @@
 # S3 bucket settings:
 s3_website_bucket_name: 'my-website-s3-bucket'
 s3_website_bucket_region: 'us-east-1'
+s3_website_bucket_tagging:
+  purpose: fe-hosting
+  created-by: ansible
 # Domain names should be covered by the given TLS certificate:
 s3_website_alias_domain_names:
   - 'custom-domain.org'

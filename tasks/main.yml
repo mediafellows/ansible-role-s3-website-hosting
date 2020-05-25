@@ -9,6 +9,7 @@
   s3_bucket:
     name: "{{ s3_website_bucket_name }}"
     policy: "{{ lookup('template', 's3_read_website_bucket.json.j2') }}"
+    tags: "{{ s3_website_bucket_tagging }}"
     state: present
     region: "{{ s3_website_bucket_region }}"
   register: website_bucket
