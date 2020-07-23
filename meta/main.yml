@@ -1,4 +1,5 @@
 galaxy_info:
+  role_name: s3-website-hosting
   author: Stefan Horning
   description: Role to make website hosting on s3 with cloudfront delivery easy.
   company: Mediapeers
