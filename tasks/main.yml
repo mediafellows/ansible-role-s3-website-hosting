@@ -166,14 +166,21 @@
     cloudfront_id: "{{ cloudfront_website_distribution.id }}"
 
 - name: Output Cloudfront domain
-  debug: var=cloudfront_domain
+  debug:
+    var: cloudfront_domain
 
 - name: Output Cloudfront ID
-  debug: var=cloudfront_id
+  debug:
+    var: cloudfront_id
+
+- name: Output if explicit Route53 zone name was set
+  debug:
+    var: s3_website_route53_zone_name
+  when: s3_website_route53_zone_name is defined
 
 - name: Remove now unused DNS records from Route53 (if aliases were removed from Cloudfront)
   route53:
-    zone: "{{ item.split('.')[-2:] | join('.') }}"
+    zone: "{{ s3_website_route53_zone_name | default(item.split('.')[-2:] | join('.')) }}"
     record: "{{ item }}"
     type: A
     value: "{{ cloudfront_domain }}"
@@ -185,9 +192,9 @@
     - (cloudfront_aliases_diff | length) > 0
     - s3_website_create_dns_record
 
-- name: Create DNS alias for CloudFront distribution on Route53 (using second level zone)
+- name: Create DNS alias for CloudFront distribution on Route53 (using given zone or second level zone)
   route53:
-    zone: "{{ item.split('.')[-2:] | join('.') }}"
+    zone: "{{ s3_website_route53_zone_name | default(item.split('.')[-2:] | join('.')) }}"
     record: "{{ item }}"
     type: A
     value: "{{ cloudfront_domain }}"
@@ -199,6 +206,16 @@
   when: s3_website_create_dns_record
   ignore_errors: true
   register: cloudfront_website_dns_result
+
+- name: Route53 was explictly set but Route53 task still failed
+  fail:
+    msg: "When s3_website_route53_zone_name is defined (i.e explicitly set) above task shouldn't fail. Have you set correct zone name?"
+  when:
+    - s3_website_route53_zone_name is defined
+    - s3_website_create_dns_record
+    - cloudfront_website_dns_result.results is defined
+    - item.failed
+  with_items: '{{ cloudfront_website_dns_result.results }}'
 
 - name: Create DNS alias for CloudFront distribution on Route53 (using third level zone where previous task failed)
   route53:

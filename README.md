@@ -9,7 +9,7 @@ Takes care of bucket permissions, CloudFront origin config and TLS setup, using 
 Needs Ansible 2.5 or newer for the `cloudfront_distribution` module.
 
 ## Requirements
-Needs a working DNS zone in Route53 and working ACM certificates for the domains you want to use.
+Needs a working DNS zone in Route53 (if `s3_website_create_dns_record: true`) and working ACM certificates for the domains you want to use.
 
 Also as Cloudfront Ansible modules don't work perfectly yet, you have to backport them into your
 configured [library dir](https://docs.ansible.com/ansible/latest/user_guide/playbooks_best_practices.html#bundling-ansible-modules-with-playbooks) (until they make it into a release).
@@ -25,6 +25,7 @@ The following variables can be set:
 - `s3_website_alias_domain_names: ['custom-domain.org']` - Set your the domain(s) your Wedbsite should be reachable under. **Needs overwriting!**
 - `s3_website_certificate_arn: 'tls-certificate-arn-for-cloudwatch'` - Set the TLS certificate you already setup in ACM for the domains. Use the Certificates ARN here. **Needed for HTTPs to work!**
 - `s3_website_create_dns_record: true` - Set false to not create a Route53 DNS record, like when domain is managed elsewhere
+- `s3_website_route53_zone_name: custom-domain.org` - This role tries to guess zone name on Route53 from alias names, however sometimes it could pick the wrong one if you have mutiple zones of the same TLD. In this case set this variable
 - `s3_website_root_object: 'index.html'` - Root document for your website. Defaults to index.html
 - `s3_website_caching_max_ttl: 2592000` -  max seconds items can stay in the CloudFront cache (AWS defaults to 365 here, this role to 30)
 - `s3_website_caching_default_ttl: 86400` - seconds after which the origin is checked for a change (default to 1 day, also AWS default)
