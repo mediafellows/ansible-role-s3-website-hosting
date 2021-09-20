@@ -1,12 +1,12 @@
 [![Ansible-Test](https://github.com/mediafellows/ansible-role-s3-website-hosting/actions/workflows/ansible_test.yml/badge.svg)](https://github.com/mediafellows/ansible-role-s3-website-hosting/actions/workflows/ansible_test.yml)
 
 # Website hosting on S3 with Cloudfront as CDN
-Role for static website hosting on AWS using S3 for storage and CloudFront for distribution over HTTPs.
+Ansible role for static website hosting on AWS using S3 for storage and CloudFront for distribution over HTTPs.
 
 This role sets up the S3 bucket with the right configuration and then creates a CloudFront distribution using that bucket as a origin.
 Takes care of bucket permissions, CloudFront origin config and TLS setup, using given CNAMEs and ACM (AWS certificate manager) TLS certificate.
 
-Needs Ansible 2.5 or newer for the `cloudfront_distribution` module.
+Needs Ansible 2.9 or newer for the `cloudfront_distribution` module.
 
 ## Requirements
 
