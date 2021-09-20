@@ -2,11 +2,11 @@
 # tasks file for mediafellows.s3-website-hosting
 
 - name: Name of the website s3 bucket that will be used
-  debug:
+  ansible.builtin.debug:
     var: s3_website_bucket_name
 
 - name: Create S3 bucket for website hosting
-  s3_bucket:
+  amazon.aws.s3_bucket:
     name: "{{ s3_website_bucket_name }}"
     policy: "{{ lookup('template', 's3_read_website_bucket.json.j2') }}"
     tags: "{{ s3_website_bucket_tagging }}"
@@ -15,20 +15,21 @@
   register: website_bucket
 
 - name: S3 bucket details
-  debug:
+  ansible.builtin.debug:
     var: website_bucket
     verbosity: 1
 
 - name: Configure S3 bucket for website hosting
-  s3_website:
+  community.aws.s3_website:
     name: "{{ website_bucket.name }}"
     suffix: "{{ s3_website_root_object }}"
     state: present
 
 - name: Output Website domains
-  debug:
+  ansible.builtin.debug:
     var: s3_website_alias_domain_names
 
+# Not using FQCN here yet until https://github.com/ansible-collections/community.aws/pull/293 is fixed, to allow loading own module from local library
 - name: Search CloudFront distribution based on alias domain names given (task fails if cloudfront still needs creating)
   cloudfront_info:
     distribution: true
@@ -38,18 +39,18 @@
   register: distribution_search
 
 - name: Make sure role internal facts are set to null in case they have been previously set (to not carry over old values)
-  set_fact:
+  ansible.builtin.set_fact:
     s3_website_existing_distribution_config: null
     s3_website_found_distribution: null
     s3_website_existing_distribution_id: null
 
 - name: Assign first found element to variable
-  set_fact:
+  ansible.builtin.set_fact:
     s3_website_found_distribution: "{{ distribution_search.results | selectattr('failed', 'equalto',  false) | list | first }}"
   when: distribution_search.results | selectattr('failed', 'equalto',  false) | list | length > 0
 
 - name: Extract distribution config if Cloudfront distribution was found
-  set_fact:
+  ansible.builtin.set_fact:
     s3_website_existing_distribution_config: "{{ s3_website_found_distribution.cloudfront.result.Distribution.DistributionConfig }}"
     s3_website_existing_distribution_id: "{{ s3_website_found_distribution.cloudfront.result.DistributionId }}"
   when:
@@ -57,30 +58,30 @@
     - s3_website_found_distribution.cloudfront is defined
 
 - name: Output infos of existing CloudFront distribution (confirm if correct one was matched)
-  debug:
+  ansible.builtin.debug:
     msg: "Distribution-ID: {{ s3_website_existing_distribution_id }} | Aliases (CNAMES): {{ s3_website_existing_distribution_config.Aliases.Items }}"
   when:
     - s3_website_existing_distribution_config is not none
 
 - name: Wait to give time to read above message
-  pause:
+  ansible.builtin.pause:
     seconds: 15
   when:
     - s3_website_existing_distribution_config is not none
 
 - name: Set caller reference to pre-existing one or generate new one for creating new Cloudfront distribution
-  set_fact:
+  ansible.builtin.set_fact:
     cloudfront_caller_reference: "{{ s3_website_existing_distribution_config.CallerReference | default(generated_cloudfront_caller_reference) }}"
 
 - name: Output caller reference to be used to identify Cloudfront dist
-  debug:
+  ansible.builtin.debug:
     var: cloudfront_caller_reference
 
 # Check all params for cloudfront_distribution module here:
 # https://docs.ansible.com/ansible/latest/modules/cloudfront_distribution_module.html#parameters
 # If s.th. doesn't update as expected see if a purge_xx flag need to be added
 - name: Create or update Cloudfront Website distribution
-  cloudfront_distribution:
+  community.aws.cloudfront_distribution:
     enabled: true
     origins:
       - id: 'S3-{{ s3_website_bucket_name }}'
@@ -141,14 +142,14 @@
   register: cloudfront_website_distribution
 
 - name: Output result diff
-  debug:
+  ansible.builtin.debug:
     var: cloudfront_website_distribution.diff
 
-- set_fact:
+- ansible.builtin.set_fact:
     cloudfront_aliases_diff: []
 
 - name: Look into diff to see if an alias was removed in the update
-  set_fact:
+  ansible.builtin.set_fact:
     cloudfront_aliases_diff: "{{ cloudfront_website_distribution.diff.before.Aliases.Items | difference(cloudfront_website_distribution.diff.after.Aliases.Items) }}"
   when:
     - cloudfront_website_distribution.diff is defined
@@ -156,23 +157,25 @@
     - cloudfront_website_distribution.diff.after.Aliases is defined
 
 - name: Output ALIASES diff after update
-  debug:
+  ansible.builtin.debug:
     var: cloudfront_aliases_diff
   when: (cloudfront_aliases_diff | length) > 0
 
 - name: Save Cloudfront Domain and ID in variables
-  set_fact:
+  ansible.builtin.set_fact:
     cloudfront_domain: "{{ cloudfront_website_distribution.domain_name }}"
     cloudfront_id: "{{ cloudfront_website_distribution.id }}"
 
 - name: Output Cloudfront domain
-  debug: var=cloudfront_domain
+  ansible.buitlin.debug:
+    var: cloudfront_domain
 
 - name: Output Cloudfront ID
-  debug: var=cloudfront_id
+  ansible.builtin.debug:
+    var: cloudfront_id
 
 - name: Remove now unused DNS records from Route53 (if aliases were removed from Cloudfront)
-  route53:
+  community.aws.route53:
     zone: "{{ item.split('.')[-2:] | join('.') }}"
     record: "{{ item }}"
     type: A
@@ -186,7 +189,7 @@
     - s3_website_create_dns_record
 
 - name: Create DNS alias for CloudFront distribution on Route53 (using second level zone)
-  route53:
+  community.aws.route53:
     zone: "{{ item.split('.')[-2:] | join('.') }}"
     record: "{{ item }}"
     type: A
@@ -201,7 +204,7 @@
   register: cloudfront_website_dns_result
 
 - name: Create DNS alias for CloudFront distribution on Route53 (using third level zone where previous task failed)
-  route53:
+  community.aws.route53:
     zone: "{{ item.item.split('.')[-3:] | join('.') }}"
     record: "{{ item.item }}"
     type: A
