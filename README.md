@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/mediafellows/ansible-role-s3-website-hosting.svg?branch=master)](https://travis-ci.com/mediafellows/ansible-role-s3-website-hosting)
+[![Ansible-Test](https://github.com/mediafellows/ansible-role-s3-website-hosting/actions/workflows/ansible_test.yml/badge.svg)](https://github.com/mediafellows/ansible-role-s3-website-hosting/actions/workflows/ansible_test.yml)
 
 # Website hosting on S3 with Cloudfront as CDN
 Role for static website hosting on AWS using S3 for storage and CloudFront for distribution over HTTPs.
@@ -9,13 +9,8 @@ Takes care of bucket permissions, CloudFront origin config and TLS setup, using 
 Needs Ansible 2.5 or newer for the `cloudfront_distribution` module.
 
 ## Requirements
-Needs a working DNS zone in Route53 and working ACM certificates for the domains you want to use.
 
-Also as Cloudfront Ansible modules don't work perfectly yet, you have to backport them into your
-configured [library dir](https://docs.ansible.com/ansible/latest/user_guide/playbooks_best_practices.html#bundling-ansible-modules-with-playbooks) (until they make it into a release).
-
-- To fix the `cloudfront_distribution` module fetch the one from here https://gist.github.com/kirkdave/1f4ae95ee92c750b68a79b2a437e2e65 (see [related ticket](https://github.com/ansible/ansible/issues/45043#issuecomment-425843218))
-- To fix `cloudfront_facts` return values you have to apply those changes: https://github.com/ansible/ansible/pull/49061
+Needs a working DNS zone in Route53 and working ACM TLS certificates for the domains you want to use.
 
 ## Role Variables
 The following variables can be set:
@@ -30,7 +25,7 @@ The following variables can be set:
 - `s3_website_caching_default_ttl: 86400` - seconds after which the origin is checked for a change (default to 1 day, also AWS default)
 - `s3_website_price_class: PriceClass_100` - price class for CloudFront distribution
 - `s3_website_cloudfront_lambda_functions: []` - Add dicts to this list you want included into the Cloudfront config (Lambda@Edge function). Each dict item should keys `lambda_function_arn` (with a valid Lambda ARN) and the `event_type` (for example 'orgin-response').
-- `s3_website_cloudfront_tls_policy: TLSv1.1_2016` - AWS managed TLS version and cipher policy for Cloudfront. Check AWS [CloudFront docs](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/secure-connections-supported-viewer-protocols-ciphers.html) which are available.
+- `s3_website_cloudfront_tls_policy: TLSv1.1_2019` - AWS managed TLS version and cipher policy for Cloudfront. Check AWS [CloudFront docs](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/secure-connections-supported-viewer-protocols-ciphers.html) which are available.
 
 For more details also check the `defaults/main.yml` file.
 
