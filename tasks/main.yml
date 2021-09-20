@@ -167,7 +167,7 @@
     cloudfront_id: "{{ cloudfront_website_distribution.id }}"
 
 - name: Output Cloudfront domain
-  ansible.buitlin.debug:
+  ansible.builtin.debug:
     var: cloudfront_domain
 
 - name: Output Cloudfront ID
