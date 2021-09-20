@@ -1,12 +1,11 @@
 galaxy_info:
-  role_name: s3-website-hosting
+  role_name: s3_website_hosting
   author: Stefan Horning
   description: Role to make website hosting on s3 with cloudfront delivery easy.
-  company: Mediapeers
+  company: Mediafellows GmbH
   license: BSD
-  min_ansible_version: 2.9
-  github_branch: master
 
+  min_ansible_version: 2.9
   platforms:
     - name: Fedora
       versions:
@@ -23,5 +22,6 @@ galaxy_info:
     - website
     - hosting
     - frontend
+    - cdn
 
 dependencies: []
