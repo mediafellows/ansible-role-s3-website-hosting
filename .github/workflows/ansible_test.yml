@@ -1,0 +1,39 @@
+---
+
+name: Ansible-Test
+on: [ push, pull_request ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      ANSIBLE_FORCE_COLOR: true
+    steps:
+
+      - name: Checkout code from Github
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: Install latest Ansible through pip
+        run: pip install ansible
+
+      - name: Install Yamllint
+        run: pip install yamllint
+
+      - name: Output python and ansible versions
+        run: |
+          python --version
+          ansible --version
+
+      - name: Create ansible.cfg with correct roles_path
+        run: printf '[defaults]\nroles_path=../' > ansible.cfg
+
+      - name: Run yamllint for YAML correctness
+        run: yamllint .
+
+      - name: Basic Ansible role syntax check
+        run: ansible-playbook -i tests/inventory --syntax-check tests/test.yml
