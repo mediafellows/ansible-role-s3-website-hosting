@@ -117,6 +117,7 @@
         cookies: { forward: 'none' }
         query_string_cache_keys: []
       lambda_function_associations: "{{ s3_website_cloudfront_lambda_functions }}"
+      response_headers_policy_id: "{{ s3_website_cloudfront_response_headers_policy_id }}"
       trusted_signers: { enabled: false, items: [] }
     http_version: 'http2'
     custom_error_responses:
