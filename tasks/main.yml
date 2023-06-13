@@ -8,6 +8,11 @@
 - name: Create S3 bucket for website hosting
   amazon.aws.s3_bucket:
     name: "{{ s3_website_bucket_name }}"
+    public_access:
+      block_public_acls: false
+      block_public_policy: false
+      ignore_public_acls: false
+      restrict_public_buckets: false
     policy: "{{ lookup('template', 's3_read_website_bucket.json.j2') }}"
     tags: "{{ s3_website_bucket_tagging }}"
     state: present
