@@ -5,7 +5,22 @@
   ansible.builtin.debug:
     var: s3_website_bucket_name
 
+# Doing task without the policy first as it seems
+# to take a bit before te public_access settings are applied
+# and only after that the policy (for public access) can be set
 - name: Create S3 bucket for website hosting
+  amazon.aws.s3_bucket:
+    name: "{{ s3_website_bucket_name }}"
+    public_access:
+      block_public_acls: false
+      block_public_policy: false
+      ignore_public_acls: false
+      restrict_public_buckets: false
+    tags: "{{ s3_website_bucket_tagging }}"
+    state: present
+    region: "{{ s3_website_bucket_region }}"
+
+- name: Update S3 bucket policy for website hosting
   amazon.aws.s3_bucket:
     name: "{{ s3_website_bucket_name }}"
     public_access:
