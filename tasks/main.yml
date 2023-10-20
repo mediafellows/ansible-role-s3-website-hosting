@@ -51,7 +51,7 @@
 
 # Not using FQCN here yet until https://github.com/ansible-collections/community.aws/pull/293 is fixed, to allow loading own module from local library
 - name: Search CloudFront distribution based on alias domain names given (task fails if cloudfront still needs creating)
-  community.aws.cloudfront_info:
+  community.aws.cloudfront_distribution_info:
     distribution: true
     domain_name_alias: "{{ item }}"
   ignore_errors: true
@@ -99,7 +99,7 @@
 
 # Check all params for cloudfront_distribution module here:
 # https://docs.ansible.com/ansible/latest/modules/cloudfront_distribution_module.html#parameters
-# If s.th. doesn't update as expected see if a purge_xx flag need to be added
+# If s.th. doesn't update as expected see if a purge_xx flag needs to be added
 - name: Create or update Cloudfront Website distribution
   community.aws.cloudfront_distribution:
     enabled: true

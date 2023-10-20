@@ -6,11 +6,10 @@ Ansible role for static website hosting on AWS using S3 for storage and CloudFro
 This role sets up the S3 bucket with the right configuration and then creates a CloudFront distribution using that bucket as a origin.
 Takes care of bucket permissions, CloudFront origin config and TLS setup, using given CNAMEs and ACM (AWS certificate manager) TLS certificate.
 
-Needs Ansible 2.9 or newer for the `cloudfront_distribution` module.
 
 ## Requirements
 
-Needs a working DNS zone in Route53 and working ACM TLS certificates for the domains you want to use.
+- Needs a working DNS zone in Route53 and working ACM TLS certificates for the domains you want to use.
 
 ## Role Variables
 The following variables can be set:
@@ -37,8 +36,14 @@ last upload or use versioned filenames.
 Example with AWS CLI:
 `aws cloudfront create-invalidation --distribution-id XXXXX --invalidation-batch "Paths={Quantity=1,Items=['/index.html']},CallerReference=$(date)"`
 
-## Dependencies
-Depends on no other Ansible role.
+## Ansible Dependencies
+
+### Collections
+- Needs Ansible collection [amazon.aws](https://galaxy.ansible.com/ui/repo/published/amazon/aws/) version 5.0 or newer for route53 and s3 modules
+- Needs Ansible collection [community.aws](https://galaxy.ansible.com/ui/repo/published/community/aws/) version 5.0 or newer for cloudfront and s3_website modules
+
+### Roles
+- Depends on no other Ansible role.
 
 ## Example Playbook
 Use the role in your existing playbook like this:
