@@ -39,8 +39,8 @@ Example with AWS CLI:
 ## Ansible Dependencies
 
 ### Collections
-- Needs Ansible collection [amazon.aws](https://galaxy.ansible.com/ui/repo/published/amazon/aws/) version 5.0 or newer for route53 and s3 modules
-- Needs Ansible collection [community.aws](https://galaxy.ansible.com/ui/repo/published/community/aws/) version 5.0 or newer for cloudfront and s3_website modules
+- Needs Ansible collection [amazon.aws](https://galaxy.ansible.com/ui/repo/published/amazon/aws/) version 6.0 or newer for s3_bucket module
+- Needs Ansible collection [community.aws](https://galaxy.ansible.com/ui/repo/published/community/aws/) version 7.0 or newer for cloudfront_distribution, cloudfront_distribution_info, route53 and s3_website modules
 
 ### Roles
 - Depends on no other Ansible role.
