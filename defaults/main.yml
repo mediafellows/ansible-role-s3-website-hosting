@@ -23,6 +23,8 @@ s3_website_root_object: 'index.html'
 s3_website_caching_max_ttl: 2592000 # 30 days (AWS defaults to 365 days)
 # seconds after which the origin is checked for a change
 s3_website_caching_default_ttl: 86400 # 1 day (AWS default)
+# minimum seconds for caching error pages
+s3_website_caching_error_pages_ttl: 300
 
 # Other cloudfront settings:
 
