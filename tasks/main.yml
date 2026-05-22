@@ -5,45 +5,29 @@
   ansible.builtin.debug:
     var: s3_website_bucket_name
 
-# Doing task without the policy first as it seems
-# to take a bit before te public_access settings are applied
-# and only after that the policy (for public access) can be set
-- name: Create S3 bucket for website hosting
+- name: Create S3 bucket for hosting the website artefacts (not publicly reachable, only from CF)
   amazon.aws.s3_bucket:
     name: "{{ s3_website_bucket_name }}"
     public_access:
-      block_public_acls: false
-      block_public_policy: false
-      ignore_public_acls: false
-      restrict_public_buckets: false
+      block_public_acls: true
+      block_public_policy: true
+      ignore_public_acls: true
+      restrict_public_buckets: true
     tags: "{{ s3_website_bucket_tagging }}"
-    state: present
     region: "{{ s3_website_bucket_region }}"
-
-- name: Update S3 bucket policy for website hosting
-  amazon.aws.s3_bucket:
-    name: "{{ s3_website_bucket_name }}"
-    public_access:
-      block_public_acls: false
-      block_public_policy: false
-      ignore_public_acls: false
-      restrict_public_buckets: false
-    policy: "{{ lookup('template', 's3_read_website_bucket.json.j2') }}"
-    tags: "{{ s3_website_bucket_tagging }}"
     state: present
-    region: "{{ s3_website_bucket_region }}"
-  register: website_bucket
 
 - name: S3 bucket details
   ansible.builtin.debug:
     var: website_bucket
     verbosity: 1
 
-- name: Configure S3 bucket for website hosting
+- name: Remove bucke website hosting settings (if present) as we use Cloudfront for that
   community.aws.s3_website:
     name: "{{ website_bucket.name }}"
     suffix: "{{ s3_website_root_object }}"
-    state: present
+    region: "{{ s3_website_bucket_region }}"
+    state: absent
 
 - name: Output Website domains
   ansible.builtin.debug:
@@ -62,6 +46,7 @@
     s3_website_existing_distribution_config: null
     s3_website_found_distribution: null
     s3_website_existing_distribution_id: null
+    s3_website_cloudfront_arn: null
 
 - name: Assign first found element to variable
   ansible.builtin.set_fact:
@@ -96,6 +81,14 @@
   ansible.builtin.debug:
     var: cloudfront_caller_reference
 
+- name: Create an origin access control for all Cloudfronts with s3 origin
+  cloudfront_origin_access_control:
+    name: s3-website-hosting-access-control
+    service: s3
+    description: A Cloudfront access control config to be used with s3 origins
+    state: present
+  register: s3_cloudfront_origin_access_control
+
 # Check all params for cloudfront_distribution module here:
 # https://docs.ansible.com/ansible/latest/modules/cloudfront_distribution_module.html#parameters
 # If s.th. doesn't update as expected see if a purge_xx flag needs to be added
@@ -104,11 +97,9 @@
     enabled: true
     origins:
       - id: 'S3-{{ s3_website_bucket_name }}'
-        domain_name: '{{ s3_website_bucket_name }}.s3-website-{{ s3_website_bucket_region }}.amazonaws.com'
-        custom_origin_config:
-          origin_protocol_policy: 'http-only'
-          http_port: 80
-          https_port: 443
+        domain_name: '{{ s3_website_bucket_name }}.s3.{{ s3_website_bucket_region }}.amazonaws.com'
+        # TODO: community.aws.cloudfront_distribution does not support this flag yet!
+        origin_access_control_id: "{{ s3_cloudfront_origin_access_control.id }}"
         custom_headers: []
     purge_origins: yes
     default_root_object: "{{ s3_website_root_object }}"
@@ -167,6 +158,23 @@
 
 - ansible.builtin.set_fact:
     cloudfront_aliases_diff: []
+
+- name: Save Cloudfront ARN in variable
+  ansible.builtin.set_fact:
+    s3_website_cloudfront_arn: "{{ cloudfront_website_distribution.arn }}"
+
+- name: Update origin S3 bucket with bucket policy to allow Cloudfront access
+  amazon.aws.s3_bucket:
+    name: "{{ s3_website_bucket_name }}"
+    public_access:
+      block_public_acls: true
+      block_public_policy: true
+      ignore_public_acls: true
+      restrict_public_buckets: true
+    policy: "{{ lookup('template', 's3_read_from_cloudfrontt.json.j2') }}"
+    tags: "{{ s3_website_bucket_tagging }}"
+    region: "{{ s3_website_bucket_region }}"
+    state: present
 
 - name: Look into diff to see if an alias was removed in the update
   ansible.builtin.set_fact:
